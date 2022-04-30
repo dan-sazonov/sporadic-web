@@ -78,11 +78,12 @@ Baud:
   }
 
   async function sendSerialLine() {
+    let dataToSend;
     dataToSend = document.getElementById("lineToSend").value;
     lineHistory.unshift(dataToSend);
     historyIndex = -1; // No history entry selected
-    if (document.getElementById("addLine").checked == true) dataToSend = dataToSend + "\r\n";
-    if (document.getElementById("echoOn").checked == true) appendToTerminal("> " + dataToSend);
+    if (document.getElementById("addLine").checked === true) dataToSend = dataToSend + "\r\n";
+    if (document.getElementById("echoOn").checked === true) await appendToTerminal("> " + dataToSend + "<br>");
     await writer.write(dataToSend);
     document.getElementById("lineToSend").value = "";
     //await writer.releaseLock();
@@ -102,7 +103,7 @@ Baud:
         break;
       }
       // value is a string.
-      await appendToTerminal(value);
+      await appendToTerminal("> " + value + "<br>");
     }
   }
 
@@ -136,13 +137,12 @@ Baud:
     }
   })
 
-  document.getElementById("baud").value = (localStorage.baud == undefined ? 9600 : localStorage.baud);
-  document.getElementById("addLine").checked = (localStorage.addLine == "false" ? false : true);
-  document.getElementById("echoOn").checked = (localStorage.echoOn == "false" ? false : true);
-
+  document.getElementById("baud").value = (localStorage.baud === undefined ? 9600 : localStorage.baud);
+  document.getElementById("addLine").checked = (localStorage.addLine !== "false");
+  document.getElementById("echoOn").checked = (localStorage.echoOn !== "false");
 </script>
 
-<script src="js/modernizr.min.js"></script>
+<!--<script src="js/modernizr.min.js"></script>-->
 <script src="js/main.js"></script>
 </body>
 </html>
