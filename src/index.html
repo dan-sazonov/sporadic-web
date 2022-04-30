@@ -13,45 +13,42 @@
 </head>
 
 <body>
+<div class="serial-monitor">
+  <button onclick="connectSerial()">Connect</button>
+  <label for="baud">Baud:</label>
+  <input type="text" id="baud" list="baudList" onclick="this.value = ''" onchange="localStorage.baud = this.value">
+  <datalist id="baudList">
+    <option value="110">110</option>
+    <option value="300">300</option>
+    <option value="600">600</option>
+    <option value="1200">1200</option>
+    <option value="2400">2400</option>
+    <option value="4800">4800</option>
+    <option value="9600">9600</option>
+    <option value="14400">14400</option>
+    <option value="19200">19200</option>
+    <option value="38400">38400</option>
+    <option value="57600">57600</option>
+    <option value="115200">115200</option>
+    <option value="128000">128000</option>
+    <option value="256000">256000</option>
+  </datalist>
+  <button onclick="serialResultsDiv.innerHTML = '';">Clear</button>
 
-<button onclick="connectSerial()">Connect</button>
-Baud:
-<input type="text" id="baud" list="baudList" style="width: 10ch;" onclick="this.value = ''"
-       onchange="localStorage.baud = this.value">
-<datalist id="baudList">
-  <option value="110">110</option>
-  <option value="300">300</option>
-  <option value="600">600</option>
-  <option value="1200">1200</option>
-  <option value="2400">2400</option>
-  <option value="4800">4800</option>
-  <option value="9600">9600</option>
-  <option value="14400">14400</option>
-  <option value="19200">19200</option>
-  <option value="38400">38400</option>
-  <option value="57600">57600</option>
-  <option value="115200">115200</option>
-  <option value="128000">128000</option>
-  <option value="256000">256000</option>
-</datalist>
-<button onclick="serialResultsDiv.innerHTML = '';">Clear</button>
+  <label for="lineToSend"></label>
+  <input type="text" id="lineToSend">
+  <button onclick="sendSerialLine()">Send</button>
+  <button onclick="sendCharacterNumber()">Send Char</button>
 
-<br>
-<input type="text" id="lineToSend" style="width:calc(100% - 165px)">
-<button onclick="sendSerialLine()" style="width:45px">Send</button>
-<button onclick="sendCharacterNumber()" style="width:100px">Send Char</button>
-<br>
+  <input type="checkbox" id="addLine" onclick="localStorage.addLine = this.checked;" checked>
+  <label for="addLine">send with /r/n</label>
 
-<input type="checkbox" id="addLine" onclick="localStorage.addLine = this.checked;" checked>
-<label for="addLine">send with /r/n</label>
+  <input type="checkbox" id="echoOn" onclick="localStorage.echoOn = this.checked;" checked>
+  <label for="echoOn">echo</label>
 
-<input type="checkbox" id="echoOn" onclick="localStorage.echoOn = this.checked;" checked>
-<label for="echoOn">echo</label>
-
-
-<br>
-<div id="serialResults">
+  <div id="serialResults"></div>
 </div>
+
 
 <script>
   let port, textEncoder, writableStreamClosed, writer, historyIndex = -1;
@@ -59,7 +56,6 @@ Baud:
 
   async function connectSerial() {
     try {
-      // Prompt user to select any serial port.
       port = await navigator.serial.requestPort();
       await port.open({baudRate: document.getElementById("baud").value});
       await listenToPort();
@@ -83,27 +79,21 @@ Baud:
     lineHistory.unshift(dataToSend);
     historyIndex = -1; // No history entry selected
     if (document.getElementById("addLine").checked === true) dataToSend = dataToSend + "\r\n";
-    if (document.getElementById("echoOn").checked === true) await appendToTerminal("> " + dataToSend + "<br>");
+    if (document.getElementById("echoOn").checked === true) await appendToTerminal(`> ${dataToSend}<br>`);
     await writer.write(dataToSend);
     document.getElementById("lineToSend").value = "";
-    //await writer.releaseLock();
   }
 
   async function listenToPort() {
     const textDecoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
     const reader = textDecoder.readable.getReader();
 
-    // Listen to data coming from the serial device.
     while (true) {
       const {value, done} = await reader.read();
       if (done) {
-        // Allow the serial port to be closed later.
-        //reader.releaseLock();
         break;
       }
-      // value is a string.
-      await appendToTerminal("> " + value + "<br>");
+      await appendToTerminal(`> ${value}<br>`);
     }
   }
 
@@ -111,14 +101,13 @@ Baud:
 
   async function appendToTerminal(newStuff) {
     serialResultsDiv.innerHTML += newStuff;
-    if (serialResultsDiv.innerHTML.length > 3000) serialResultsDiv.innerHTML = serialResultsDiv.innerHTML.slice(serialResultsDiv.innerHTML.length - 3000);
+    if (serialResultsDiv.innerHTML.length > 3000) serialResultsDiv.innerHTML = serialResultsDiv.innerHTML
+      .slice(serialResultsDiv.innerHTML.length - 3000);
 
-    //scroll down to bottom of div
     serialResultsDiv.scrollTop = serialResultsDiv.scrollHeight;
   }
 
   function scrollHistory(direction) {
-    // Clamp the value between -1 and history length
     historyIndex = Math.max(Math.min(historyIndex + direction, lineHistory.length - 1), -1);
     if (historyIndex >= 0) {
       document.getElementById("lineToSend").value = lineHistory[historyIndex];
