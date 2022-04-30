@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.idea/
+src/js/modernizr.min.js
+src/js/plugins.js

@@ -1,16 +1,34 @@
 {
-  "name": " ",
+  "name": "sporadic-web",
+  "private": true,
   "version": "0.0.1",
-  "description": "",
-  "keywords": "",
-  "license": "",
-  "author": "",
-  "scripts": {
-    "build": "parcel build index.html",
-    "dev": "parcel index.html --open",
-    "start": "npm run build && npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "license": "MIT",
+
+  "author": {
+    "name": "Dan Sazonov",
+    "email": "p-294803@yandex.com",
+    "url": "https://github.com/dan-sazonov"
   },
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dan-sazonov/sporadic-web.git"
+  },
+
+  "bugs": {
+    "url": "https://github.com/dan-sazonov/sporadic-web/issues"
+  },
+
+  "scripts": {
+    "webpack-dev": "cross-env NODE_ENV=development webpack --mode development",
+    "webpack-build": "cross-env NODE_ENV=production webpack --mode production",
+    "webpack-watch": "cross-env NODE_ENV=production webpack --mode production --watch",
+    "dev": "gulp",
+    "build": "gulp prod",
+    "lint": "gulp linter",
+    "stats": "webpack --json > log.json && webpack-bundle-analyzer log.json"
+  },
+
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
@@ -71,11 +89,6 @@
   },
   "dependencies": {
     "airbnb-browser-shims": "^3.3.0",
-    "bootstrap": "^4.6.0",
-    "jquery": "^3.6.0",
-    "jquery-touchswipe": "^1.6.19",
-    "jtap": "^0.3.3",
-    "popper": "^1.0.1",
-    "popper.js": "^1.16.1"
+    "jquery": "^3.6.0"
   }
 }
