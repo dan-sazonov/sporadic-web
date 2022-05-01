@@ -26,7 +26,7 @@
 </head>
 
 <body class="h-100">
-<main class="container-fluid h-100">
+<div class="container-fluid h-50">
 
   <div class="row h-50">
     <div class="col serial-monitor mh-100 overflow-auto">
@@ -80,7 +80,11 @@
     <div class="col d-flex flex-column justify-content-around" id="temp_graph"></div>
   </div>
 
-</main>
+</div>
+
+<div class="container-fluid h-50">
+  <canvas class="webgl"></canvas>
+</div>
 
 <!--<script src="js/modernizr.min.js"></script>-->
 <script src="js/main.js"></script>
