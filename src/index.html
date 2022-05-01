@@ -10,6 +10,19 @@
   <link href="css/styles.css" rel="stylesheet"> <!-- подсосется после сборки -->
 
   <meta content="#fafafa" name="theme-color">
+
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=2e17b82e-c3d3-41e0-83e8-f103b227d2e8&lang=ru_RU"
+          type="text/javascript"></script>
+  <script>
+    ymaps.ready(init);
+
+    function init() {
+      let myMap = new ymaps.Map("map", {
+        center: [51.7, 36.2],
+        zoom: 12
+      });
+    }
+  </script>
 </head>
 
 <body>
@@ -49,6 +62,9 @@
   <div id="serialResults"></div>
 </div>
 
+<div class="map">
+  <div id="map" style="width: 600px; height: 400px"></div>
+</div>
 
 <script>
   let port, textEncoder, writableStreamClosed, writer, historyIndex = -1;
