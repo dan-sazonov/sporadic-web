@@ -1,5 +1,6 @@
-import {connectSerial, sendCharacterNumber, sendSerialLine, serialResultsDiv} from './monitor'
-import {update_data} from './graphs'
+import {connectSerial, sendCharacterNumber, sendSerialLine, serialResultsDiv} from './monitor';
+import {update_data} from './graphs';
+import './webgl'
 
 // localStorage.lastData;
 // ^ последнее, что прочитано с ком-порта

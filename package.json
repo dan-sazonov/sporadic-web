@@ -84,6 +84,7 @@
   },
   "dependencies": {
     "airbnb-browser-shims": "^3.3.0",
-    "apexcharts": "^3.35.0"
+    "apexcharts": "^3.35.0",
+    "three": "^0.140.0"
   }
 }
