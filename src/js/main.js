@@ -1,5 +1,4 @@
 import 'airbnb-browser-shims';
-import * as $ from 'jquery';
 import ApexCharts from 'apexcharts'
 
 window.Promise ||
@@ -119,7 +118,7 @@ async function connectSerial() {
   try {
     port = await navigator.serial.requestPort();
     await port.open({baudRate: document.getElementById("baud").value});
-    await listenToPort();
+    listenToPort();
 
     textEncoder = new TextEncoderStream();
     writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
@@ -194,10 +193,20 @@ document.getElementById("addLine").checked = (localStorage.addLine !== "false");
 document.getElementById("echoOn").checked = (localStorage.echoOn !== "false");
 
 document.getElementById("connect_btn").onclick = connectSerial;
-document.getElementById("baud").onclick = function () {this.value = ''};
-document.getElementById("baud").onchange = function () {localStorage.baud = this.value};
-document.getElementById("clear_btn").onclick = function () {serialResultsDiv.innerHTML = '';};
+document.getElementById("baud").onclick = function () {
+  this.value = ''
+};
+document.getElementById("baud").onchange = function () {
+  localStorage.baud = this.value
+};
+document.getElementById("clear_btn").onclick = function () {
+  serialResultsDiv.innerHTML = '';
+};
 document.getElementById("send_btn").onclick = sendSerialLine;
 document.getElementById("sendchr_btn").onclick = sendCharacterNumber;
-document.getElementById("addLine").onclick = function () {localStorage.addLine = this.checked;};
-document.getElementById("echoOn").onclick = function () {localStorage.echoOn = this.checked;};
+document.getElementById("addLine").onclick = function () {
+  localStorage.addLine = this.checked;
+};
+document.getElementById("echoOn").onclick = function () {
+  localStorage.echoOn = this.checked;
+};
