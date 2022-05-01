@@ -8,7 +8,7 @@
 }
 
 $width: calc((100vw - 0.8rem * 4) / 3);
-$height: calc(#{$width} * 3/4);
+$height: calc(#{$width} * 3 / 4);
 
 #map {
   width: $width;
