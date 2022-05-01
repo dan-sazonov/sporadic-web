@@ -3,22 +3,18 @@
   "private": true,
   "version": "0.0.1",
   "license": "MIT",
-
   "author": {
     "name": "Dan Sazonov",
     "email": "p-294803@yandex.com",
     "url": "https://github.com/dan-sazonov"
   },
-
   "repository": {
     "type": "git",
     "url": "https://github.com/dan-sazonov/sporadic-web.git"
   },
-
   "bugs": {
     "url": "https://github.com/dan-sazonov/sporadic-web/issues"
   },
-
   "scripts": {
     "webpack-dev": "cross-env NODE_ENV=development webpack --mode development",
     "webpack-build": "cross-env NODE_ENV=production webpack --mode production",
@@ -28,7 +24,6 @@
     "lint": "gulp linter",
     "stats": "webpack --json > log.json && webpack-bundle-analyzer log.json"
   },
-
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
