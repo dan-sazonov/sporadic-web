@@ -26,52 +26,63 @@
 </head>
 
 <body>
-<div class="serial-monitor">
-  <button id="connect_btn">Connect</button>
-  <label for="baud">Baud:</label>
-  <input type="text" id="baud" list="baudList">
-  <datalist id="baudList">
-    <option value="110">110</option>
-    <option value="300">300</option>
-    <option value="600">600</option>
-    <option value="1200">1200</option>
-    <option value="2400">2400</option>
-    <option value="4800">4800</option>
-    <option value="9600">9600</option>
-    <option value="14400">14400</option>
-    <option value="19200">19200</option>
-    <option value="38400">38400</option>
-    <option value="57600">57600</option>
-    <option value="115200">115200</option>
-    <option value="128000">128000</option>
-    <option value="256000">256000</option>
-  </datalist>
-  <button id="clear_btn">Clear</button>
+<main class="container-fluid">
+  <div class="row">
 
-  <label for="lineToSend"></label>
-  <input type="text" id="lineToSend">
-  <button  id="send_btn">Send</button>
-  <button id="sendchr_btn">Send Char</button>
+    <div class="wrap-l col-lg">
+      <div class="serial-monitor">
+        <button id="connect_btn">Connect</button>
+        <label for="baud">Baud:</label>
+        <input type="text" id="baud" list="baudList">
+        <datalist id="baudList">
+          <option value="110">110</option>
+          <option value="300">300</option>
+          <option value="600">600</option>
+          <option value="1200">1200</option>
+          <option value="2400">2400</option>
+          <option value="4800">4800</option>
+          <option value="9600">9600</option>
+          <option value="14400">14400</option>
+          <option value="19200">19200</option>
+          <option value="38400">38400</option>
+          <option value="57600">57600</option>
+          <option value="115200">115200</option>
+          <option value="128000">128000</option>
+          <option value="256000">256000</option>
+        </datalist>
+        <button id="clear_btn">Clear</button>
 
-  <input type="checkbox" id="addLine" checked>
-  <label for="addLine">send with /r/n</label>
+        <label for="lineToSend"></label>
+        <input type="text" id="lineToSend">
+        <button id="send_btn">Send</button>
+        <button id="sendchr_btn">Send Char</button>
 
-  <input type="checkbox" id="echoOn" checked>
-  <label for="echoOn">echo</label>
+        <input type="checkbox" id="addLine" checked>
+        <label for="addLine">send with /r/n</label>
 
-  <div id="serialResults"></div>
-</div>
+        <input type="checkbox" id="echoOn" checked>
+        <label for="echoOn">echo</label>
 
-<div class="map">
-  <div id="map" style="width: 600px; height: 400px"></div>
-</div>
+        <div id="serialResults"></div>
+      </div>
 
-<div class="graphs">
-  <div id="height_graph"></div>
-  <div id="press_graph"></div>
-  <div id="acc_graph"></div>
-  <div id="temp_graph"></div>
-</div>
+      <div class="map">
+        <div id="map" style="width: 600px; height: 400px"></div>
+      </div>
+    </div>
+
+    <div class="wrap-c graphs col-lg">
+      <div id="height_graph"></div>
+      <div id="press_graph"></div>
+    </div>
+
+    <div class="wrap-r graphs col-lg">
+      <div id="acc_graph"></div>
+      <div id="temp_graph"></div>
+    </div>
+
+  </div>
+</main>
 
 <!--<script src="js/modernizr.min.js"></script>-->
 <script src="js/main.js"></script>
