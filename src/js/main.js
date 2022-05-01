@@ -1,11 +1,15 @@
-import 'airbnb-browser-shims';
 import {connectSerial, sendCharacterNumber, sendSerialLine, serialResultsDiv} from './monitor'
 import {update_data} from './graphs'
+
+// localStorage.lastData;
+// ^ последнее, что прочитано с ком-порта
+
 
 // рендер графиков:
 update_data(0,0,0,0,0);
 // ^ сюда передаем номер пакета, высоту, давление, ускорение, температуру
 // посде этого графики перестроятся, будет добавлена новая точка
+
 
 // биндим ивенты монитора:
 document.getElementById("connect_btn").onclick = connectSerial;

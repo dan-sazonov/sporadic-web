@@ -42,6 +42,7 @@ async function listenToPort() {
     if (done) {
       break;
     }
+    localStorage.lastData = value;
     await appendToTerminal(`> ${value}<br>`);
   }
 }
