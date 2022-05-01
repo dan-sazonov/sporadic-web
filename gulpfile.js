@@ -9,7 +9,7 @@ const path = {
   src: {
     html: `${sourceFolder}/*.html`,
     css: `${sourceFolder}/css/styles.scss`,
-    js: ['src/js/tmp/main.js', 'src/js/modernizr.min.js', 'src/js/plugins.js'],
+    js: ['src/js/tmp/main.js', 'src/js/*.js'],
   },
   watch: {
     html: `${sourceFolder}/**/*.html`,
