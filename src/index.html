@@ -25,61 +25,63 @@
   </script>
 </head>
 
-<body>
-<main>
-  <div class="col wrap-l">
-    <div class="serial-monitor">
-      <button id="connect_btn">Connect</button>
-      <label for="baud">Baud:</label>
-      <input type="text" id="baud" list="baudList">
-      <datalist id="baudList">
-        <option value="110">110</option>
-        <option value="300">300</option>
-        <option value="600">600</option>
-        <option value="1200">1200</option>
-        <option value="2400">2400</option>
-        <option value="4800">4800</option>
-        <option value="9600">9600</option>
-        <option value="14400">14400</option>
-        <option value="19200">19200</option>
-        <option value="38400">38400</option>
-        <option value="57600">57600</option>
-        <option value="115200">115200</option>
-        <option value="128000">128000</option>
-        <option value="256000">256000</option>
-      </datalist>
-      <button id="clear_btn">Clear</button>
+<body class="h-100">
+<main class="container-fluid h-100">
 
-      <label for="lineToSend"></label>
-      <input type="text" id="lineToSend">
-      <button id="send_btn">Send</button>
-      <button id="sendchr_btn">Send Char</button>
+  <div class="row h-50">
+    <div class="col serial-monitor mh-100 overflow-auto">
+      <div class="d-flex justify-content-around align-self-center mb-3">
+        <button class="btn btn-success btn-sm" id="connect_btn">Подключить порт</button>
+        <span><label for="baud">Бод:</label>
+        <input type="text" id="baud" list="baudList"></span>
+        <datalist id="baudList">
+          <option value="110">110</option>
+          <option value="300">300</option>
+          <option value="600">600</option>
+          <option value="1200">1200</option>
+          <option value="2400">2400</option>
+          <option value="4800">4800</option>
+          <option value="9600">9600</option>
+          <option value="14400">14400</option>
+          <option value="19200">19200</option>
+          <option value="38400">38400</option>
+          <option value="57600">57600</option>
+          <option value="115200">115200</option>
+          <option value="128000">128000</option>
+          <option value="256000">256000</option>
+        </datalist>
+        <button class="btn btn-outline-danger btn-sm" id="clear_btn">Очистить</button>
+      </div>
 
-      <input type="checkbox" id="addLine" checked>
-      <label for="addLine">send with /r/n</label>
+      <div class="d-flex justify-content-center align-self-center mb-1">
+        <span><label for="lineToSend"></label>
+        <input class="mw-100 me-4" type="text" id="lineToSend"></span>
+        <button class="btn btn-primary btn-sm me-3" id="send_btn">Отправить</button>
+        <button class="btn btn-outline-primary btn-sm" id="sendchr_btn">Отправить символ</button>
+      </div>
 
-      <input type="checkbox" id="echoOn" checked>
-      <label for="echoOn">echo</label>
+      <div class="d-flex justify-content-center align-self-center">
+        <span class="me-4"><input type="checkbox" id="addLine" checked>
+        <label for="addLine">отправить с /r/n</label>
+        </span><span>
+        <input type="checkbox" id="echoOn" checked>
+        <label for="echoOn">эхо</label></span>
+      </div>
 
       <div id="serialResults"></div>
     </div>
-
-    <div class="map">
-      <div id="map" style="width: 600px; height: 400px"></div>
-    </div>
+    <div class="col d-flex flex-column justify-content-around" id="height_graph"></div>
+    <div class="col d-flex flex-column justify-content-around" id="acc_graph"></div>
   </div>
 
-  <div class="col wrap-r graphs">
-    <div class="row">
-      <div id="height_graph"></div>
-      <div id="press_graph"></div>
-    </div>
-    <div class="row">
-      <div id="acc_graph"></div>
-      <div id="temp_graph"></div>
-    </div>
+  <div class="row h-50">
+    <div class="col map" id="map"></div>
+    <div class="col d-flex flex-column justify-content-around" id="press_graph"></div>
+    <div class="col d-flex flex-column justify-content-around" id="temp_graph"></div>
   </div>
+
 </main>
+
 <!--<script src="js/modernizr.min.js"></script>-->
 <script src="js/main.js"></script>
 </body>

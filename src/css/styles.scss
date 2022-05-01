@@ -1,17 +1,16 @@
 @import "main";
 @import "normalize";
-
-main {
-  display: flex;
-
-}
-
-.col {
-  display: flex;
-  flex-direction: column;
-}
+@import "bootstrap.min.css";
 
 .row {
-  display: flex;
-  flex-direction: row;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+$width: calc((100vw - 0.8rem * 4) / 3);
+$height: calc(#{$width} * 3 / 4);
+
+#map {
+  width: $width;
+  height: $height;
 }

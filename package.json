@@ -29,7 +29,6 @@
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.13.10",
-    "apexcharts": "^3.35.0",
     "axios": "^0.21.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.1.0",
@@ -85,6 +84,6 @@
   },
   "dependencies": {
     "airbnb-browser-shims": "^3.3.0",
-    "jquery": "^3.6.0"
+    "apexcharts": "^3.35.0"
   }
 }

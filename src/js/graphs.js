@@ -8,7 +8,7 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-p
 window.Promise ||
 document.write('<script src="https://cdn.jsdelivr.net/npm/findindex_polyfill_mdn"><\/script>');
 
-let packs_num =  [];
+let packs_num = [];
 let vals = {
   height: [],
   press: [],
