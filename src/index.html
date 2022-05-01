@@ -102,6 +102,7 @@
 
   async function listenToPort() {
     const textDecoder = new TextDecoderStream();
+    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable); // не торгать!
     const reader = textDecoder.readable.getReader();
 
     while (true) {
