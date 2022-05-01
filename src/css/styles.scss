@@ -2,4 +2,15 @@
 @import "normalize";
 @import "bootstrap.min.css";
 
+.row {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
 
+$width: calc((100vw - 0.8rem * 4) / 3);
+$height: calc(#{$width} * 3/4);
+
+#map {
+  width: $width;
+  height: $height;
+}
