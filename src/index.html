@@ -93,6 +93,8 @@
 
 <div id="height_graph"></div>
 <div id="press_graph"></div>
+<div id="acc_graph"></div>
+<div id="temp_graph"></div>
 
 <script>
   let options = {
@@ -107,7 +109,7 @@
       }
     },
     dataLabels: {
-        enabled: false
+      enabled: false
     },
     stroke: {
       curve: 'straight'
@@ -153,11 +155,48 @@
         88888,88888, 99999,99999,100000,100000]
     }],
   };
+  let acc_graph = {
+    title: {
+      text: 'График ускорения',
+      align: 'center'
+    },
+    yaxis: {
+      labels: {},
+      title: {
+        text: 'Ускорение, м/с²'
+      },
+    },
+    series: [{
+      name: "Ускорение, м/с<sup>2</sup>",
+      data: [0,1,2,2,4,4,6,6,8,8,10,10,12,12,14,14,16,16, 18,18,20,20]
+    }],
+  };
+  let temp_graph = {
+    title: {
+      text: 'График температуры',
+      align: 'center'
+    },
+    yaxis: {
+      labels: {},
+      title: {
+        text: 'Температура, °C'
+      },
+    },
+    series: [{
+      name: "Температура, °C",
+      data: [0,1,2,2,4,4,6,6,8,8,10,10,12,12,14,14,16,16, 18,18,20,20]
+    }],
+  };
 
   let height_rend = new ApexCharts(document.querySelector("#height_graph"), Object.assign(height_graph, options));
-  height_rend.render();
   let press_rend = new ApexCharts(document.querySelector("#press_graph"), Object.assign(press_graph, options));
+  let acc_rend = new ApexCharts(document.querySelector("#acc_graph"), Object.assign(acc_graph, options));
+  let temp_rend = new ApexCharts(document.querySelector("#temp_graph"), Object.assign(temp_graph, options));
+
+  height_rend.render();
   press_rend.render();
+  acc_rend.render();
+  temp_rend.render();
 
   let port, textEncoder, writableStreamClosed, writer, historyIndex = -1;
   const lineHistory = [];
