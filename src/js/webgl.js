@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 let sizes = {
-  width: window.innerWidth,
+  width: document.documentElement.scrollWidth,
   height: window.innerHeight
 };
 
