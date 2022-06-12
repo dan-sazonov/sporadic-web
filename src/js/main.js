@@ -7,7 +7,18 @@ import './webgl'
 
 
 // рендер графиков:
-update_data(0, 0, 0, 0, 0);
+let i = 1;
+// update_data(i, i * 2, i * 2, i * 2, i * 2);
+// i++;
+// update_data(i, i * 2, i * 2, i * 2, i * 2);
+// i++;
+// update_data(i, i * 2, i * 2, i * 2, i * 2);
+// i++;
+// update_data(i, i * 2, i * 2, i * 2, i * 2);
+// i++;
+// update_data(i, i * 2, i * 2, i * 2, i * 2);
+// i++;
+setInterval(async function (){await update_data(i, i*2, i*2, i*2, i*2); i++;}, 20);
 // ^ сюда передаем номер пакета, высоту, давление, ускорение, температуру
 // посде этого графики перестроятся, будет добавлена новая точка
 

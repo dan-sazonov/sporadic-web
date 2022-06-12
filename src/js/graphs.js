@@ -8,12 +8,12 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-p
 window.Promise ||
 document.write('<script src="https://cdn.jsdelivr.net/npm/findindex_polyfill_mdn"><\/script>');
 
-let packs_num = [];
+let packs_num = [0];
 let vals = {
-  height: [],
-  press: [],
-  acc: [],
-  temp: []
+  height: [0],
+  press: [0],
+  acc: [0],
+  temp: [0]
 };
 
 let options = {
@@ -106,6 +106,16 @@ let temp_graph = {
   }],
 };
 
+let height_rend = new ApexCharts(document.querySelector("#height_graph"), Object.assign(height_graph, options));
+let press_rend = new ApexCharts(document.querySelector("#press_graph"), Object.assign(press_graph, options));
+let acc_rend = new ApexCharts(document.querySelector("#acc_graph"), Object.assign(acc_graph, options));
+let temp_rend = new ApexCharts(document.querySelector("#temp_graph"), Object.assign(temp_graph, options));
+
+height_rend.render();
+press_rend.render();
+acc_rend.render();
+temp_rend.render();
+
 function update_data(pack, height, press, acc, temp) {
   packs_num.push(pack);
   vals.height.push(height);
@@ -113,15 +123,21 @@ function update_data(pack, height, press, acc, temp) {
   vals.acc.push(acc);
   vals.temp.push(temp);
 
-  let height_rend = new ApexCharts(document.querySelector("#height_graph"), Object.assign(height_graph, options));
-  let press_rend = new ApexCharts(document.querySelector("#press_graph"), Object.assign(press_graph, options));
-  let acc_rend = new ApexCharts(document.querySelector("#acc_graph"), Object.assign(acc_graph, options));
-  let temp_rend = new ApexCharts(document.querySelector("#temp_graph"), Object.assign(temp_graph, options));
+  height_rend.updateSeries([{
+    data: vals.height
+  }]);
 
-  height_rend.render();
-  press_rend.render();
-  acc_rend.render();
-  temp_rend.render();
+  press_rend.updateSeries([{
+    data: vals.press
+  }]);
+
+  acc_rend.updateSeries([{
+    data: vals.acc
+  }]);
+
+  temp_rend.updateSeries([{
+    data: vals.temp
+  }]);
 }
 
 export {update_data}
