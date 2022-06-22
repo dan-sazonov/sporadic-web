@@ -32,28 +32,6 @@ let height_graph = new Chart(document.getElementById("height_graph"), {
   }
 });
 
-let acc_graph = new Chart(document.getElementById("acc_graph"), {
-  type: 'line',
-  data: {
-    labels: [0],
-    datasets: [{
-      data: [0],
-      label: "Ускорение, м/с^2",
-      borderColor: "#3e95cd",
-      fill: false
-    }]
-  },
-  options: {
-    title: {
-      display: true,
-      text: 'Ускорение, м/с^2'
-    },
-    animation: {
-      duration: 0
-    }
-  }
-});
-
 let press_graph = new Chart(document.getElementById("press_graph"), {
   type: 'line',
   data: {
@@ -69,6 +47,28 @@ let press_graph = new Chart(document.getElementById("press_graph"), {
     title: {
       display: true,
       text: 'Давление, Па'
+    },
+    animation: {
+      duration: 0
+    }
+  }
+});
+
+let acc_graph = new Chart(document.getElementById("acc_graph"), {
+  type: 'line',
+  data: {
+    labels: [0],
+    datasets: [{
+      data: [0],
+      label: "Ускорение, м/с^2",
+      borderColor: "#3e95cd",
+      fill: false
+    }]
+  },
+  options: {
+    title: {
+      display: true,
+      text: 'Ускорение, м/с^2'
     },
     animation: {
       duration: 0
@@ -99,18 +99,30 @@ let temp_graph = new Chart(document.getElementById("temp_graph"), {
 });
 
 
-function update_data(chrt, label, data) {
-  let chart = chrt;
-  chart.data.labels.push(label);
-  chart.data.datasets.forEach((dataset) => {
-    dataset.data.push(data);
+function update_data(pack, height, press, acc, temp) {
+  height_graph.data.labels.push(pack);
+  height_graph.data.datasets.forEach((dataset) => {
+    dataset.data.push(height);
   });
-  chart.update();
-}
+  height_graph.update();
 
-update_data(height_graph, 100, 100)
-update_data(acc_graph, 100, 100)
-update_data(press_graph, 100, 100)
-update_data(temp_graph, 100, 100)
+  press_graph.data.labels.push(pack);
+  press_graph.data.datasets.forEach((dataset) => {
+    dataset.data.push(press);
+  });
+  press_graph.update();
+
+  acc_graph.data.labels.push(pack);
+  acc_graph.data.datasets.forEach((dataset) => {
+    dataset.data.push(acc);
+  });
+  acc_graph.update();
+
+  temp_graph.data.labels.push(pack);
+  temp_graph.data.datasets.forEach((dataset) => {
+    dataset.data.push(temp);
+  });
+  temp_graph.update();
+}
 
 export {update_data}
