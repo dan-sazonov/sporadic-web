@@ -18,7 +18,7 @@ let i = 1;
 // i++;
 // update_data(i, i * 2, i * 2, i * 2, i * 2);
 // i++;
-setInterval(function (){update_data('chart', i, i*2); i++;}, 200);
+// setInterval(function (){update_data('chart', i, i*2); i++;}, 200);
 // ^ сюда передаем номер пакета, высоту, давление, ускорение, температуру
 // посде этого графики перестроятся, будет добавлена новая точка
 
