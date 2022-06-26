@@ -5,9 +5,9 @@ let sizes = {
   height: window.innerHeight
 };
 
-let scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 10000);
-let renderer = new THREE.WebGLRenderer();
+export let scene = new THREE.Scene();
+export let camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 10000);
+export let renderer = new THREE.WebGLRenderer();
 renderer.setSize(sizes.width, sizes.height);
 document.body.appendChild(renderer.domElement);
 let geometry = new THREE.BoxGeometry(700, 700, 700, 10, 10, 10);
