@@ -1,5 +1,6 @@
 const projectFolder = 'dist';
 const sourceFolder = 'src';
+
 const path = {
   build: {
     html: `${projectFolder}/`,
@@ -19,6 +20,7 @@ const path = {
   scripts: {
     main: `${sourceFolder}/js/main.js`,
     modernizr: `${sourceFolder}/js/modernizr.min.js`,
+    yamap: `${sourceFolder}/js/yamap.js`,
   },
   clean: `./${projectFolder}/`,
   lint: [`${sourceFolder}/js/**/*.js`, './*.js'],
@@ -34,9 +36,17 @@ const autoprefixer = require('gulp-autoprefixer');
 const groupMedia = require('gulp-group-css-media-queries');
 const cleanCSS = require('gulp-clean-css');
 const eslint = require('gulp-eslint');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const {exec} = require('child_process');
+var browserify = require('browserify');
 
+gulp.task('browserify', function() {
+  return browserify('./src/js/main.js')
+      .bundle()
+      // Передаем имя файла, который получим на выходе, vinyl-source-stream
+      .pipe(source('main.js'))
+      .pipe(gulp.dest('./build/'));
+});
 function html() {
   return src(path.src.html)
     .pipe(fileInclude())
@@ -81,7 +91,7 @@ gulp.task('jsProd', (done) => {
   return src('./').pipe(browserSync.stream());
 });
 
-gulp.task('copyLibs', () => src([path.scripts.modernizr])
+gulp.task('copyLibs', () => src([path.scripts.modernizr, path.scripts.yamap])
   .pipe(dest(path.build.js))
   .pipe(browserSync.stream()));
 

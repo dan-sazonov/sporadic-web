@@ -1,15 +1,16 @@
 //import {connectSerial, sendCharacterNumber, sendSerialLine, serialResultsDiv} from './monitor';
-import {renderer, camera, scene} from './webgl';
-import ApexCharts from "apexcharts";
-import { invoke } from '@tauri-apps/api/tauri'
-import {readTextFile, writeFile, readDir, copyFile, createDir, removeDir, removeFile, renameFile, BaseDirectory} from '@tauri-apps/api/fs'
+import {scene} from './webgl';
+import {update_data} from "./graphs";
+import {invoke} from '@tauri-apps/api/tauri'
+import {BaseDirectory, createDir, readDir, readTextFile, writeFile} from '@tauri-apps/api/fs'
 import {appDir} from '@tauri-apps/api/path';
-import { AlwaysStencilFunc } from 'three';
-import * as THREE from "three";
+import * as THREE from 'three';
 
 //var filemanager = require('easy-file-manager')
 
 //const invoke = window.__TAURI__.invoke;
+// let i = 1;
+// setInterval(function (){update_data(i, i*2,i*2,i,i); i++;}, 200);
 
 const AHRS = require('ahrs');
 window.Promise ||
@@ -20,7 +21,7 @@ document.write('<script src="https://cdn.jsdelivr.net/npm/eligrey-classlist-js-p
 window.Promise ||
 document.write('<script src="https://cdn.jsdelivr.net/npm/findindex_polyfill_mdn"><\/script>');
 var sampleFreq = 100.0;  // sample frequency in Hz
-var betaDef    =  1;   // 2 * proportional gain
+var betaDef = 1;   // 2 * proportional gain
 
 // //---------------------------------------------------------------------------------------------------
 // // Variable definitions
@@ -28,6 +29,7 @@ class SMA {
   constructor(filval) {
     this.filval = filval;
   }
+
   calc(newval) {
     var k = 0.01;
     if (Math.abs(newval - this.filval) > 1.5) k = 0.9
@@ -35,8 +37,9 @@ class SMA {
     return this.filval;
   }
 }
-class SK{
-  constructor(err_measure, oprosspeed){
+
+class SK {
+  constructor(err_measure, oprosspeed) {
     this._err_measure = parseFloat(err_measure);
     this._q = parseFloat(oprosspeed);
     this._kalman_gain = 0.;
@@ -44,7 +47,8 @@ class SK{
     this._last_estimate = 0.
     this._err_estimate = parseFloat(err_measure);
   }
-  calc(newval){
+
+  calc(newval) {
     this._kalman_gain = this._err_estimate / (this._err_estimate + this._err_measure);
     this._current_estimate = this._last_estimate + this._kalman_gain * (newval - this._last_estimate);
     this._err_estimate = (1. - this._kalman_gain) * this._err_estimate + Math.abs(this._last_estimate - this._current_estimate) * this._q;
@@ -52,6 +56,7 @@ class SK{
     return parseFloat(this._current_estimate);
   }
 }
+
 var smax = new SK(0.15, 0.05);
 var smay = new SK(0.15, 0.05);
 var smaz = new SK(0.15, 0.05);
@@ -64,12 +69,6 @@ appDir().then(q => {
   });
 });
 
-function init(){
-  let myMap = new ymaps.Map("map", {
-    center: [51.7, 36.2],
-    zoom: 12
-  });
-}
 
 var coordination = readTextFile('./data/smth.txt', {dir: BaseDirectory.App});
 var arr = [];
@@ -93,11 +92,10 @@ coordinationt.then(
     writeFile({contents: "[DATATATATA]", path: './smth.txt'}, {dir: BaseDirectory.App});
   }
 );
-
-
 var beta = betaDef;                         // 2 * proportional gain (Kp)
 var w = 1.0, x = 0.0, y = 0.0, z = 0.0;
-function to_matrix_z(angle){
+
+function to_matrix_z(angle) {
   var matrix = [];
   var row = [];
   var row1 = [];
@@ -116,7 +114,8 @@ function to_matrix_z(angle){
   matrix[2] = row2;
   return matrix;
 }
-function to_matrix_x(angle){
+
+function to_matrix_x(angle) {
   var matrix = [];
   var row = [];
   var row1 = [];
@@ -135,7 +134,8 @@ function to_matrix_x(angle){
   matrix[2] = row2;
   return matrix;
 }
-function to_matrix_R(y, b, a){
+
+function to_matrix_R(y, b, a) {
   var matrix = [];
   var row = [];
   var row1 = [];
@@ -157,7 +157,8 @@ function to_matrix_R(y, b, a){
   matrix[2] = row2;
   return matrix;
 }
-function to_matrix_Q(x, y, z, w){
+
+function to_matrix_Q(x, y, z, w) {
   var matrix = [];
   var row = [];
   var row1 = [];
@@ -169,63 +170,65 @@ function to_matrix_Q(x, y, z, w){
   //row[0] = Math.cos(a) * Math.cos(y) - Math.cos(b) * Math.sin(a) * Math.sin(y);
   //row[1] = Math.cos(b) * Math.cos(y) * Math.sin(a) + Math.cos(a) * Math.sin(y);
   //row[2] = Math.sin(a) * Math.sin(b);
-  row[0] = 1 - 2*(y*y + z*z);
-  row[1] = 2*(x*y + w*z);
-  row[2] = 2*(x*z - w*y);
+  row[0] = 1 - 2 * (y * y + z * z);
+  row[1] = 2 * (x * y + w * z);
+  row[2] = 2 * (x * z - w * y);
   matrix[0] = row;
 
   //row1[0] = -Math.cos(y) * Math.sin(a) - Math.cos(a) * Math.cos(b) * Math.sin(y);
   //row1[1] = Math.cos(a) * Math.cos(b) * Math.cos(y) - Math.sin(a) * Math.sin(y);
   //row1[2] = Math.cos(a) * Math.sin(b);
-  row1[0] = 2*(x*y - w*z);
-  row1[1] = 1 - 2*(x*x + z*z);
-  row1[2] = 2*(y*z + w*x);
+  row1[0] = 2 * (x * y - w * z);
+  row1[1] = 1 - 2 * (x * x + z * z);
+  row1[2] = 2 * (y * z + w * x);
   matrix[1] = row1;
 
   //row2[0] = Math.sin(b) * Math.sin(y);
   //row2[1] = -Math.cos(y) * Math.sin(b);
   //row2[2] = Math.cos(b);
-  row2[0] = 2*(x*z + w*y);
-  row2[1] = 2*(y*z - w*x);
-  row2[2] = 1 - 2*(x*x + y*y);
+  row2[0] = 2 * (x * z + w * y);
+  row2[1] = 2 * (y * z - w * x);
+  row2[2] = 1 - 2 * (x * x + y * y);
 
   matrix[2] = row2;
   return matrix;
 }
-function MultiplyMatrix3x1(A,B)
-{
 
-  var MMrow1 = A[0][0]*B[0] + A[1][0]*B[1] + A[2][0]*B[2];
-  var MMrow2 = A[0][1]*B[0] + A[1][1]*B[1] + A[2][1]*B[2];
-  var MMrow3 = A[0][2]*B[0] + A[1][2]*B[1] + A[2][2]*B[2];
+function MultiplyMatrix3x1(A, B) {
+
+  var MMrow1 = A[0][0] * B[0] + A[1][0] * B[1] + A[2][0] * B[2];
+  var MMrow2 = A[0][1] * B[0] + A[1][1] * B[1] + A[2][1] * B[2];
+  var MMrow3 = A[0][2] * B[0] + A[1][2] * B[1] + A[2][2] * B[2];
   var C = [[MMrow1], [MMrow2], [MMrow3]]
   return C;
 }
-function MultiplyMatrix(A,B)
-{
+
+function MultiplyMatrix(A, B) {
   var rowsA = 3, colsA = 3,
     rowsB = 3, colsB = 1,
     C = [];
   if (colsA != rowsB) return false;
-  for (var i = 0; i < rowsA; i++) C[ i ] = [];
-  for (var k = 0; k < colsB; k++)
-  { for (var i = 0; i < rowsA; i++)
-  { var t = 0;
-    for (var j = 0; j < rowsB; j++) t += A[ i ][j]*B[j][k];
-    C[ i ][k] = t;
-  }
+  for (var i = 0; i < rowsA; i++) C[i] = [];
+  for (var k = 0; k < colsB; k++) {
+    for (var i = 0; i < rowsA; i++) {
+      var t = 0;
+      for (var j = 0; j < rowsB; j++) t += A[i][j] * B[j][k];
+      C[i][k] = t;
+    }
   }
   return C;
 }
-function MinusMatrix(A,B)       //На входе двумерные массивы одинаковой размерности
+
+function MinusMatrix(A, B)       //На входе двумерные массивы одинаковой размерности
 {
   var m = A.length, n = A[0].length, C = [];
-  for (var i = 0; i < m; i++)
-  { C[ i ] = [];
-    for (var j = 0; j < n; j++) C[ i ][j] = A[ i ][j]-B[ i ][j];
+  for (var i = 0; i < m; i++) {
+    C[i] = [];
+    for (var j = 0; j < n; j++) C[i][j] = A[i][j] - B[i][j];
   }
   return C;
 }
+
 function madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz) {
   var recipNorm;
   var s0, s1, s2, s3;
@@ -250,7 +253,7 @@ function madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz) {
   if (!((ax === 0.0) && (ay === 0.0) && (az === 0.0))) {
 
 //         // Normalise accelerometer measurement
-    recipNorm = Math.pow(ax * ax + ay * ay + az * az,  -0.5);
+    recipNorm = Math.pow(ax * ax + ay * ay + az * az, -0.5);
     ax *= recipNorm;
     ay *= recipNorm;
     az *= recipNorm;
@@ -329,42 +332,43 @@ function madgwickAHRSupdate(gx, gy, gz, ax, ay, az, mx, my, mz) {
   return result;
 
 }
+
 var schetchik = 0;
 var pitch;
-var yaw ;
+var yaw;
 var roll;
 
-function toEuler(x, y, z, w){
+function toEuler(x, y, z, w) {
   var qw = parseFloat(w);
   var qx = parseFloat(x);
   var qy = parseFloat(y);
   var qz = parseFloat(z)
 
-  var qw2 = qw*qw;
-  var qx2 = qx*qx;
-  var qy2 = qy*qy;
-  var qz2 = qz*qz;
-  var test= qx*qy + qz*qw;
+  var qw2 = qw * qw;
+  var qx2 = qx * qx;
+  var qy2 = qy * qy;
+  var qz2 = qz * qz;
+  var test = qx * qy + qz * qw;
 
   if (test > 0.499) {
     pitch = 90;
-    yaw = 360/Math.PI*Math.atan2(qx,qw);
+    yaw = 360 / Math.PI * Math.atan2(qx, qw);
     roll = 0;
 
   }
   if (test < -0.499) {
     pitch = -90;
-    yaw = -360/Math.PI*Math.atan2(qx,qw);
+    yaw = -360 / Math.PI * Math.atan2(qx, qw);
     roll = 0;
 
   }
-  var p = Math.asin(2*qx*qy+2*qz*qw);
-  var y = Math.atan2(2*qy*qw-2*qx*qz,1-2*qy2-2*qz2);
-  var r = Math.atan2(2*qx*qw-2*qy*qz,1-2*qx2-2*qz2);
+  var p = Math.asin(2 * qx * qy + 2 * qz * qw);
+  var y = Math.atan2(2 * qy * qw - 2 * qx * qz, 1 - 2 * qy2 - 2 * qz2);
+  var r = Math.atan2(2 * qx * qw - 2 * qy * qz, 1 - 2 * qx2 - 2 * qz2);
 
-  pitch = Math.round(p*180/Math.PI);
-  yaw = Math.round(y*180/Math.PI);
-  roll = Math.round(r*180/Math.PI);
+  pitch = Math.round(p * 180 / Math.PI);
+  yaw = Math.round(y * 180 / Math.PI);
+  roll = Math.round(r * 180 / Math.PI);
 
   var objnya = {
     x: roll,
@@ -372,47 +376,17 @@ function toEuler(x, y, z, w){
     z: yaw
   };
   console.log(objnya);
-  document.getElementById("pitch").innerHTML=pitch;
-  document.getElementById("roll").innerHTML=roll;
-  document.getElementById("yaw").innerHTML=yaw;
+  document.getElementById("pitch").innerHTML = pitch;
+  document.getElementById("roll").innerHTML = roll;
+  document.getElementById("yaw").innerHTML = yaw;
 
   return objnya;
 }
 
-let packs_num = [];
-let vals = {
-  height: [],
-  press: [],
-  acc: [],
-  temp: []
-};
 
-let options = {
-  xaxis: {
-    categories: packs_num,
-  },
-  chart: {
-    height: 350,
-    type: 'line',
-    zoom: {
-      enabled: false
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    curve: 'straight'
-  },
-  grid: {
-    row: {
-      colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-      opacity: 0.5
-    },
-  }
-};
 const copySign = (x, y) => Math.sign(x) === Math.sign(y) ? x : -x;
-function toEulerS(x, y, z, w){
+
+function toEulerS(x, y, z, w) {
   var qw = parseFloat(w);
   var qx = parseFloat(x);
   var qy = parseFloat(y);
@@ -422,7 +396,7 @@ function toEulerS(x, y, z, w){
   var roll = Math.atan2(sinr_cosp, cosr_cosp);
   var sinp = 2 * (qw * qy - qz * qx);
   var pitch = 0;
-  if (Math.abs(sinp) >= 1){
+  if (Math.abs(sinp) >= 1) {
     pitch = copySign(Math.PI / 2, sinp);
   } else {
     pitch = Math.asin(sinp);
@@ -430,9 +404,9 @@ function toEulerS(x, y, z, w){
   var siny_cosp = 2 * (qw * qz + qx * qy);
   var cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
   var yaw = Math.atan2(siny_cosp, cosy_cosp);
-  pitch = Math.round(pitch*180/Math.PI);
-  yaw = Math.round(yaw*180/Math.PI);
-  roll = Math.round(roll*180/Math.PI);
+  pitch = Math.round(pitch * 180 / Math.PI);
+  yaw = Math.round(yaw * 180 / Math.PI);
+  roll = Math.round(roll * 180 / Math.PI);
   return {
     heading: yaw,
     pitch: pitch,
@@ -440,269 +414,11 @@ function toEulerS(x, y, z, w){
   }
 }
 
-var height_graph = {
-  series: [{
-    data: vals.height
-  }],
-  chart: {
-    id: 'realtime',
-    height: 350,
-    type: 'line',
-    animations: {
-      enabled: true,
-      easing: 'linear',
-      dynamicAnimation: {
-        speed: 1000
-      }
-    },
-    toolbar: {
-      show: false
-    },
-    zoom: {
-      enabled: true,
-      type: 'x',
-      autoScaleYaxis: false,
-      zoomedArea: {
-        fill: {
-          color: '#90CAF9',
-          opacity: 0.4
-        },
-        stroke: {
-          color: '#0D47A1',
-          opacity: 0.4,
-          width: 1
-        }
-      }
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    curve: 'straight'
-  },
-
-  markers: {
-    size: 0
-  },
-
-  xaxis: {
-    categories: packs_num,
-    max: 15,
-    range: 7,
-
-    floating: true,
-    axisTicks: {
-      show: false
-    },
-    axisBorder: {
-      show: false
-    },
-    labels: {
-      show: false
-    },
-  },
-  yaxis: {
-    range: 15,
-    labels: {},
-    title: {
-      text: 'Высота'
-    },
-  },
-  title: {
-    text: 'График высоты',
-    align: 'center'
-  },
-  legend: {
-    show: false
-  },
-};
-var press_graph = {
-  series: [{
-    data: vals.press
-  }],
-  chart: {
-    id: 'realtime',
-    height: 350,
-    type: 'line',
-    animations: {
-      enabled: true,
-      easing: 'linear',
-      dynamicAnimation: {
-        speed: 1000
-      }
-    },
-    toolbar: {
-      show: false
-    },
-    zoom: {
-      enabled: false
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    curve: 'straight'
-  },
-
-  markers: {
-    size: 0
-  },
-  yaxis: {
-    range: 15,
-  },
-  xaxis: {
-    categories: packs_num,
-    max: 15,
-    range: 7,
-
-    floating: true,
-    axisTicks: {
-      show: false
-    },
-    axisBorder: {
-      show: false
-    },
-    labels: {
-      show: false
-    },
-  },
-  title: {
-    text: 'График давления',
-    align: 'center'
-  },
-  legend: {
-    show: false
-  },
-};
-var acc_graph = {
-  series: [{
-    data: vals.acc
-  }],
-  chart: {
-    id: 'realtime',
-    height: 350,
-    type: 'line',
-    animations: {
-      enabled: true,
-      easing: 'linear',
-      dynamicAnimation: {
-        speed: 1000
-      }
-    },
-    toolbar: {
-      show: false
-    },
-    zoom: {
-      enabled: false
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    curve: 'straight'
-  },
-
-  markers: {
-    size: 0
-  },
-  yaxis: {
-    range: 15,
-  },
-  xaxis: {
-    categories: packs_num,
-    max: 15,
-    range: 7,
-
-    floating: true,
-    axisTicks: {
-      show: false
-    },
-    axisBorder: {
-      show: false
-    },
-    labels: {
-      show: false
-    },
-  },
-  title: {
-    text: 'График ускорения',
-    align: 'center'
-  },
-  legend: {
-    show: false
-  },
-};
-var temp_graph = {
-  series: [{
-    data: vals.temp
-  }],
-  chart: {
-    id: 'realtime',
-    height: 350,
-    type: 'line',
-    animations: {
-      enabled: true,
-      easing: 'linear',
-      dynamicAnimation: {
-        speed: 1000
-      }
-    },
-    toolbar: {
-      show: false
-    },
-    zoom: {
-      enabled: false
-    }
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    curve: 'straight'
-  },
-
-  markers: {
-    size: 0
-  },
-  xaxis: {
-    categories: packs_num,
-    max: 15,
-    range: 7,
-
-    floating: true,
-    axisTicks: {
-      show: false
-    },
-    axisBorder: {
-      show: false
-    },
-    labels: {
-      show: false
-    },
-  },
-  yaxis: {
-    range: 15,
-  },
-  title: {
-    text: 'График температуры',
-    align: 'center'
-  },
-  legend: {
-    show: false
-  },
-};
 
 //fs.writeFile('./sporadic-web-0.1.1/telemetry.txt', packnum, { flag: 'a+' }, err => {});
 console.log("Gotcha!");
 // localStorage.lastData;
 // ^ последнее, что прочитано с ком-порта
-let height_rend = new ApexCharts(document.querySelector("#height_graph"), Object.assign(height_graph, options));
-let press_rend = new ApexCharts(document.querySelector("#press_graph"), Object.assign(press_graph, options));
-let acc_rend = new ApexCharts(document.querySelector("#acc_graph"), Object.assign(acc_graph, options));
-let temp_rend = new ApexCharts(document.querySelector("#temp_graph"), Object.assign(temp_graph, options));
 
 var angles = [0., 0., 0.];
 const madgwick = new AHRS({
@@ -745,9 +461,13 @@ const madgwick = new AHRS({
 });
 var runningavg = {
   filval: 0, coef: 0.6,
-  'doStuff': function(newval) {
+  'doStuff': function (newval) {
     var cef = 0.;
-    if (Math.abs((newval - this.filval)) > 1.5){cef = 0.9;} else {cef = 0.1}
+    if (Math.abs((newval - this.filval)) > 1.5) {
+      cef = 0.9;
+    } else {
+      cef = 0.1
+    }
     this.filval += (newval - this.filval) * cef;
     return this.filval;
   }
@@ -767,18 +487,8 @@ var Sz = 0;
 var S = 0;
 var first = true;
 var skip = 0;
-var packnumprev;
-// рендер графиков:
-packs_num.push(0);
-vals.height.push(0);
-vals.press.push(0);
-vals.acc.push(0);
-vals.temp.push(0);
+var packnumprev = 0;
 
-height_rend.render();
-press_rend.render();
-acc_rend.render();
-temp_rend.render();
 
 let port, textEncoder, writableStreamClosed, writer, historyIndex = -1;
 const lineHistory = [];
@@ -831,19 +541,19 @@ async function listenToPort() {
     while (true) {
 
       //localStorage.lastData = ""
-      const { value, done } = await reader.read();
+      const {value, done} = await reader.read();
       if (done) {
         console.log("GOTCHA");
         break;
 
       }
-      if (value){
-        if (skip < 15){
+      if (value) {
+        if (skip < 15) {
           skip += 1;
         }
 
         localStorage.lastData += value;
-        if (skip >= 10 && localStorage.lastData.split(';').length > 12){
+        if (skip >= 10 && localStorage.lastData.split(';').length > 12) {
           var array = localStorage.lastData.split(';');
 
           serialResultsDiv.innerHTML = "";
@@ -861,8 +571,12 @@ async function listenToPort() {
           var gyrx = parseFloat(array[10]);
           var gyry = parseFloat(array[11]);
           var gyrz = parseFloat(array[12]);
-          if (!isNaN(magx) && !isNaN(magy) && !isNaN(magz) && !isNaN(accelx/9.81) && !isNaN(accely/9.81) && !isNaN(accelz/9.81) && !isNaN(gyrx * (Math.PI/180)) && !isNaN(gyry * (Math.PI/180)) && !isNaN(gyrz * (Math.PI/180)) && (Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2)) < 250.)){
-            if (first && packnum){packnumprev = packnum-1; first = false};
+          if (!isNaN(magx) && !isNaN(magy) && !isNaN(magz) && !isNaN(accelx / 9.81) && !isNaN(accely / 9.81) && !isNaN(accelz / 9.81) && !isNaN(gyrx * (Math.PI / 180)) && !isNaN(gyry * (Math.PI / 180)) && !isNaN(gyrz * (Math.PI / 180)) && (Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2)) < 250.)) {
+            if (first) {
+              packnumprev = packnum - 1;
+              first = false
+            }
+            ;
             magx = smmx.calc(magx);
             magy = smmy.calc(magy);
             magz = smmz.calc(magz);
@@ -881,17 +595,20 @@ async function listenToPort() {
             serialResultsDiv.innerHTML += `> ${magz}<br>`;
 
             serialResultsDiv.innerHTML += `> ${Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2))}<br>`;
-            invoke('update_txt', { jsMsg: `${packnum};${altitude};${press};${temp};${magx};${magy};${magz};${accelx};${accely};${accelz};${gyrx};${gyry};${gyrz};\n` });
+            invoke('update_txt', {jsMsg: `${packnum};${altitude};${press};${temp};${magx};${magy};${magz};${accelx};${accely};${accelz};${gyrx};${gyry};${gyrz};\n`});
             //serialResultsDiv.innerHTML += `> ${gyrx}<br>`;
             //serialResultsDiv.innerHTML += `> ${gyry}<br>`;
             //serialResultsDiv.innerHTML += `> ${gyrz}<br>`;
-            packs_num.push(packnum);
-            //if (packs_num.length > 6) packs_num.shift();
+            // packs_num.push(packnum);
+            // //if (packs_num.length > 6) packs_num.shift();
+            //
+            // vals.height.push(altitude);
+            // vals.press.push(press);
+            // vals.acc.push();
+            // vals.temp.push(temp);
 
-            vals.height.push(altitude);
-            vals.press.push(press);
-            vals.acc.push(Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2)));
-            vals.temp.push(temp);
+            update_data(packnum, altitude, press, (Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2))), temp);
+
             /*
             schetchik+=1
             if (schetchik == 20){
@@ -918,11 +635,17 @@ async function listenToPort() {
             */
 
 
-            if (!isNaN(magx) && !isNaN(magy) && !isNaN(magz) && !isNaN(accelx/9.81) && !isNaN(accely/9.81) && !isNaN(accelz/9.81) && !isNaN(gyrx * (Math.PI/180)) && !isNaN(gyry * (Math.PI/180)) && !isNaN(gyrz * (Math.PI/180)) && (Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2)) < 250.)){
-              if (Math.abs(gyrx) < 2.1){gyrx=0}
-              if (Math.abs(gyry) < 2.1){gyry=0}
-              if (Math.abs(gyrz) < 2.1){gyrz=0}
-              madgwick.update(gyrx * (Math.PI/180),  gyry* (Math.PI/180), gyrz * (Math.PI/180), accelx/9.81, accely/9.81, accelz/9.81, magx, magy, magz);
+            if (!isNaN(magx) && !isNaN(magy) && !isNaN(magz) && !isNaN(accelx / 9.81) && !isNaN(accely / 9.81) && !isNaN(accelz / 9.81) && !isNaN(gyrx * (Math.PI / 180)) && !isNaN(gyry * (Math.PI / 180)) && !isNaN(gyrz * (Math.PI / 180)) && (Math.sqrt(Math.pow(accelx, 2) + Math.pow(accely, 2) + Math.pow(accelz, 2)) < 250.)) {
+              if (Math.abs(gyrx) < 2.1) {
+                gyrx = 0
+              }
+              if (Math.abs(gyry) < 2.1) {
+                gyry = 0
+              }
+              if (Math.abs(gyrz) < 2.1) {
+                gyrz = 0
+              }
+              madgwick.update(gyrx * (Math.PI / 180), gyry * (Math.PI / 180), gyrz * (Math.PI / 180), accelx / 9.81, accely / 9.81, accelz / 9.81, magx, magy, magz);
               var temp = madgwick.getEulerAngles();
               var quat = madgwick.getQuaternion();
               console.log("", temp?.roll);
@@ -964,69 +687,57 @@ async function listenToPort() {
                 [9.81]
               ];
               var trueaccel = MinusMatrix(matrixSpeedV3, accelmatrix);
-
-              if (Math.abs(trueaccel[0][0]) < 0.1) {trueaccel[0][0] = 0.;}
-              if (Math.abs(trueaccel[1][0]) < 0.1) {trueaccel[1][0] = 0.;}
-              if (Math.abs(trueaccel[2][0]) < 0.1) {trueaccel[2][0] = 0.;}
-
+              if (trueaccel[0][0] < 0.07) {
+                trueaccel[0][0] = 0.;
+              }
+              if (trueaccel[1][0] < 0.07) {
+                trueaccel[1][0] = 0.;
+              }
+              if (trueaccel[2][0] < 0.07) {
+                trueaccel[2][0] = 0.;
+              }
               console.log("", trueaccel);
               console.log("", accelx);
               console.log("", accely);
               console.log("", accelz);
               console.log("''''''''''''");
-
-              ymaps.ready(init);
-
-              /* function init(){
-                 let myMap = new ymaps.Map("map", {
-                   center: [51.7, 36.2],
-                   zoom: 12
-                 });
-               }*/
-
               V = V0 + Math.sqrt(Math.pow(trueaccel[0][0], 2.) + Math.pow(trueaccel[1][0], 2.) + Math.pow(trueaccel[2][0], 2.)) * 0.03;
-
-              Vx = Vx0 + trueaccel[0][0] * ((packnum-packnumprev) * 0.1);
-              Vy = Vy0 + trueaccel[1][0] * ((packnum-packnumprev) * 0.1);
-              Vz = Vz0 + trueaccel[2][0] * ((packnum-packnumprev) * 0.1);
-
-              Sx = Vx0 * (packnum-packnumprev)*0.1 + (trueaccel[0][0] * Math.pow((packnum-packnumprev)*0.1, 2.)) / 2 + Sx;
-              Sy = Vy0 * (packnum-packnumprev)*0.1 + (trueaccel[1][0] * Math.pow((packnum-packnumprev)*0.1, 2.)) / 2 + Sy;
-              Sz = Vz0 * (packnum-packnumprev)*0.1 + (trueaccel[2][0] * Math.pow((packnum-packnumprev)*0.1, 2.)) / 2 + Sz;
-
+              Vx = Vx0 + trueaccel[0][0] * ((packnum - packnumprev) * 0.03);
+              Vy = Vy0 + trueaccel[1][0] * ((packnum - packnumprev) * 0.03);
+              Vz = Vz0 + trueaccel[2][0] * ((packnum - packnumprev) * 0.03);
+              Sx = Vx0 * (packnum - packnumprev) * 0.03 + (trueaccel[0][0] * Math.pow((packnum - packnumprev) * 0.03, 2.)) / 2 + Sx;
+              Sy = Vy0 * (packnum - packnumprev) * 0.03 + (trueaccel[1][0] * Math.pow((packnum - packnumprev) * 0.03, 2.)) / 2 + Sy;
+              Sz = Vz0 * (packnum - packnumprev) * 0.03 + (trueaccel[2][0] * Math.pow((packnum - packnumprev) * 0.03, 2.)) / 2 + Sz;
               V0 = V;
               Vx0 = Vx;
               Vy0 = Vy;
               Vz0 = Vz;
               packnumprev = packnum;
               //fs.writeFile('./sporadic-web-0.1.1/telemetry.txt', packnum, { flag: 'a+' }, err => {});
-              invoke('update_coord', { jsMsg: `${packnum};${Sx};${Sy};${Sz};n\n` });
+              invoke('update_coord', {jsMsg: `${packnum};${Sx};${Sy};${Sz};n\n`});
 
               console.log(V);
               console.log(Sx);
               console.log(Sy);
               console.log(Sz);
               serialResultsDiv.innerHTML += `> ${Vz}<br>`;
-              serialResultsDiv.innerHTML += `> ${trueaccel[0][0]}<br>`;
               serialResultsDiv.innerHTML += `> ${trueaccel[1][0]}<br>`;
               serialResultsDiv.innerHTML += `> ${trueaccel[2][0]}<br>`;
-              console.log(Math.sqrt(Math.pow(accelx*angles[2], 2) + Math.pow(accely*angles[0], 2) + Math.pow(accelz*angles[1], 2)));
+              serialResultsDiv.innerHTML += `> ${Sz}<br>`;
+              console.log(Math.sqrt(Math.pow(accelx * angles[2], 2) + Math.pow(accely * angles[0], 2) + Math.pow(accelz * angles[1], 2)));
 
 
             }
           }
 
           localStorage.lastData = "";
-        } else if (localStorage.lastData.split(';').length < 4){
+        } else if (localStorage.lastData.split(';').length < 4) {
           var array = localStorage.lastData.split(';');
           var time = array[0];
           var lat = array[1];
           var long = array[2];
         }
       }
-
-
-
 
 
     }
@@ -1073,7 +784,6 @@ document.getElementById("addLine").checked = (localStorage.addLine !== "false");
 document.getElementById("echoOn").checked = (localStorage.echoOn !== "false");
 
 
-
 document.getElementById("connect_btn").onclick = connectSerial;
 
 document.getElementById("baud").onclick = function () {
@@ -1093,7 +803,7 @@ document.getElementById("clear_btn").onclick = function () {
       var splinex = 0;
       var spliney = 0;
       var splinez = 0;
-      for (var i = 4; i < coordinates.length; i++){
+      for (var i = 4; i < coordinates.length; i++) {
         var temp = coordinates[i].split(';');
         if (!isNaN(parseFloat(temp[1]))) splinex = parseFloat(temp[1]);
         if (!isNaN(parseFloat(temp[2]))) spliney = parseFloat(temp[2]);
@@ -1240,4 +950,4 @@ setInterval(function() {
 }, 1);
 console.log("Gotcha!");
 */
-export{angles}
+export {angles}

@@ -1,0 +1,69 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+license = ""
+repository = ""
+default-run = "app"
+edition = "2021"
+rust-version = "1.57"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.0.0-rc.9", features = [] }
+
+
+[features]
+# by default Tauri runs in production mode
+# when `tauri dev` runs it is executed with `cargo run --no-default-features` if `devPath` is an URL
+default = [ "custom-protocol" ]
+# this feature is used used for production builds where `devPath` points to the filesystem
+# DO NOT remove this
+custom-protocol = [ "tauri/custom-protocol" ]
+libudev = ["mio-serial/libudev"]
+rt = ["tokio/rt-multi-thread"]
+codec = ["tokio-util/codec"]
+
+
+[dependencies]
+dirs = "4.0.0"
+tokio-serial = "5.4.1"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "1.0.0-rc.11", features = ["api-all"] }
+[dependencies.futures]
+version = "0.3"
+
+[dependencies.tokio]
+version = "^1.8"
+default-features = false
+features = ["full"]
+
+[dependencies.tokio-util]
+version = "0.7"
+features = ["codec"]
+
+[dependencies.mio-serial]
+version = "5.0.2"
+default-features = false
+
+[dependencies.bytes]
+version = "1"
+default-features = false
+#optional = true
+
+[dependencies.log]
+version = "0.4"
+
+[dependencies.cfg-if]
+version = "1"
+
+[dev-dependencies.tokio]
+version = "^1.8"
+features = ["macros", "rt", "process", "time", "fs", "io-util"]
+default-features = false
+
+[dev-dependencies.env_logger]
+version = "0.9.0"
