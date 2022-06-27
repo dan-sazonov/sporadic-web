@@ -1,5 +1,6 @@
 const isDev = process.env.NODE_ENV === 'development';
 const path = require('path');
+var nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
@@ -12,17 +13,17 @@ module.exports = {
   },
   devtool: isDev ? 'source-map' : false,
   plugins: [],
+
+  
   module: {
+    
     rules: [
+      
       {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: ['@babel/plugin-proposal-class-properties']
-          }
         }
       },
       {
@@ -33,6 +34,10 @@ module.exports = {
         test: /\.csv$/,
         use: ['csv-loader']
       }
-    ]
-  }
+    ],
+    
+  },
+  target: 'node',
+  
+
 };
