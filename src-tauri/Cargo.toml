@@ -37,7 +37,7 @@ tauri = { version = "1.0.0-rc.11", features = ["api-all"] }
 version = "0.3"
 
 [dependencies.tokio]
-version = "^1.8"
+version = "^1.18"
 default-features = false
 features = ["full"]
 
